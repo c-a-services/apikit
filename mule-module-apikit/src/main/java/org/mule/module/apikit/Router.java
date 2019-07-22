@@ -38,7 +38,7 @@ public class Router extends AbstractRouter
     }
 
     @Override
-    protected void startConfiguration() throws MuleException
+    protected void startConfiguration() throws StartException
     {
         if (config == null)
         {

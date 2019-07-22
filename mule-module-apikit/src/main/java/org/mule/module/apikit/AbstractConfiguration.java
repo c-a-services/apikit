@@ -94,9 +94,8 @@ public abstract class AbstractConfiguration implements Initialisable, MuleContex
 
     public static final String MULE_EXTERNAL_ENTITIES_PROPERTY = "mule.xml.expandExternalEntities";
     public static final String MULE_EXPAND_ENTITIES_PROPERTY = "mule.xml.expandInternalEntities";
-    private String address;
 
-  @Override
+    @Override
     public void initialise() throws InitialisationException
     {
         if (muleContext == null)
@@ -229,17 +228,12 @@ public abstract class AbstractConfiguration implements Initialisable, MuleContex
 
     private void injectEndpointUri(IRaml ramlApi)
     {
-        this.address = getEndpointAddress(flowConstruct);
+        String address = getEndpointAddress(flowConstruct);
         if (!keepRamlBaseUri)
         {
             parserService.updateBaseUri(ramlApi, address);
         }
         baseSchemeHostPort = getBaseSchemeHostPort(address);
-    }
-
-    public String getAddress()
-    {
-      return address;
     }
 
     public String getEndpointAddress(FlowConstruct flowConstruct)
