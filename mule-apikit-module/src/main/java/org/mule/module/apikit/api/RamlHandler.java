@@ -6,13 +6,23 @@
  */
 package org.mule.module.apikit.api;
 
-import static java.util.stream.Collectors.toList;
-import static org.mule.module.apikit.ApikitErrorTypes.throwErrorType;
-import static org.mule.raml.interfaces.ParserType.AMF;
-import static org.mule.raml.interfaces.ParserType.RAML;
-import static org.mule.raml.interfaces.common.APISyncUtils.isSyncProtocol;
-import static org.mule.raml.interfaces.model.ApiVendor.RAML_08;
-import static org.mule.raml.interfaces.model.ApiVendor.RAML_10;
+import org.apache.commons.io.IOUtils;
+import org.mule.amf.impl.ParserWrapperAmf;
+import org.mule.module.apikit.StreamUtils;
+import org.mule.module.apikit.exception.NotFoundException;
+import org.mule.parser.service.ParserService;
+import org.mule.raml.interfaces.ParserType;
+import org.mule.raml.interfaces.ParserWrapper;
+import org.mule.raml.interfaces.loader.ApiSyncResourceLoader;
+import org.mule.raml.interfaces.model.ApiVendor;
+import org.mule.raml.interfaces.model.IAction;
+import org.mule.raml.interfaces.model.IRaml;
+import org.mule.raml.interfaces.model.api.ApiRef;
+import org.mule.runtime.api.exception.TypedException;
+import org.mule.runtime.core.api.MuleContext;
+import org.raml.model.ActionType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,30 +34,12 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.apache.commons.io.IOUtils;
-
-import org.mule.amf.impl.ParserWrapperAmf;
-import org.mule.module.apikit.ApikitErrorTypes;
-import org.mule.module.apikit.StreamUtils;
-import org.mule.module.apikit.exception.NotFoundException;
-import org.mule.parser.service.ParserService;
-import org.mule.raml.interfaces.ParserType;
-import org.mule.raml.interfaces.ParserWrapper;
-import org.mule.raml.interfaces.loader.ApiSyncResourceLoader;
-import org.mule.raml.interfaces.model.ApiVendor;
-import org.mule.raml.interfaces.model.IAction;
-import org.mule.raml.interfaces.model.IRaml;
-import org.mule.runtime.api.exception.TypedException;
-
-import org.raml.model.ActionType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import static java.util.stream.Collectors.toList;
 import static org.mule.apikit.common.CommonUtils.cast;
-import static org.mule.raml.interfaces.common.APISyncUtils.isSyncProtocol;
+import static org.mule.module.apikit.ApikitErrorTypes.throwErrorType;
 import static org.mule.raml.interfaces.ParserType.AMF;
-import static org.mule.raml.interfaces.ParserType.AUTO;
 import static org.mule.raml.interfaces.ParserType.RAML;
+import static org.mule.raml.interfaces.common.APISyncUtils.isSyncProtocol;
 import static org.mule.raml.interfaces.model.ApiVendor.RAML_08;
 import static org.mule.raml.interfaces.model.ApiVendor.RAML_10;
 
@@ -194,14 +186,14 @@ public class RamlHandler {
             return baos.toString();
           }
         } catch (IOException e) {
-          throw throwErrorType(new NotFoundException(resourceRelativePath), errorTypeRepository);
+          throw throwErrorType(new NotFoundException(resourceRelativePath));
         } finally {
           IOUtils.closeQuietly(apiResource);
           IOUtils.closeQuietly(baos);
         }
       }
     }
-    throw throwErrorType(new NotFoundException(resourceRelativePath), errorTypeRepository);
+    throw throwErrorType(new NotFoundException(resourceRelativePath));
   }
 
   public String getAMFModel() {
