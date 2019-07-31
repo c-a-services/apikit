@@ -67,7 +67,7 @@ public class ConsoleResources {
       }
 
       Path normalizedPath = Paths.get(consoleResourcePath).normalize();
-      if (!normalizedPath.toString().startsWith(CONSOLE_RESOURCES_BASE)) {
+      if (!normalizedPath.startsWith(CONSOLE_RESOURCES_BASE)) {
         throw throwErrorType(new NotFoundException(resourceRelativePath));
       }
       resourceContent = getClass().getResourceAsStream(consoleResourcePath);
