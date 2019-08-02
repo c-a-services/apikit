@@ -44,8 +44,6 @@ import static org.mule.module.apikit.uri.URICoder.decode;
 public class ConsoleHandler implements MessageProcessor
 {
 
-    private Pattern CONSOLE_RESOURCE_PATTERN = Pattern.compile(".*(json|xsd|raml)$");
-
     public static final String DEFAULT_MIME_TYPE = "application/octet-stream";
     public static final String MIME_TYPE_JAVASCRIPT = "application/x-javascript";
     public static final String MIME_TYPE_PNG = "image/png";
@@ -163,6 +161,7 @@ public class ConsoleHandler implements MessageProcessor
 
     public MuleEvent process(MuleEvent event) throws MuleException
     {
+
         String listenerPath = event.getMessage().getInboundProperty("http.listener.path");
         if (listenerPath != null && !listenerPath.endsWith("/*"))
         {
@@ -222,16 +221,15 @@ public class ConsoleHandler implements MessageProcessor
                         if (!normalized.startsWith("/" + apiResourcesRelativePath)) {
                             throw new NotFoundException("../ is not allowed");
                         }
-                        if (CONSOLE_RESOURCE_PATTERN.matcher(normalized.toString()).find()) {
-                            InputStream apiResource = getClasspathResource(normalized.toString().trim());
-                            if (apiResource == null && isNotEmpty(apiResourcesRelativePath) && !"/".equals(apiResourcesRelativePath)) {
-                                if (!resourcePath.contains("../")) {
-                                    in = new FileInputStream(new File(configuration.getAppHome(), resourcePath));
-                                }
-                            } else {
-                                in = apiResource;
+                        InputStream apiResource = getClasspathResource(normalized.toString().trim());
+                        if (apiResource == null && isNotEmpty(apiResourcesRelativePath) && !"/".equals(apiResourcesRelativePath)) {
+                            if (!resourcePath.contains("../")) {
+                                in = new FileInputStream(new File(configuration.getAppHome(), resourcePath));
                             }
+                        } else {
+                            throw new NotFoundException(path);
                         }
+
                     }
                 }
                 else if (path.startsWith(embeddedConsolePath + "/scripts"))
