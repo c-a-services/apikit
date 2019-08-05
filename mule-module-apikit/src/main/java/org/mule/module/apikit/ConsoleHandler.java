@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,9 +44,6 @@ import static org.mule.util.StringUtils.isNotEmpty;
 
 public class ConsoleHandler implements MessageProcessor
 {
-
-    private Pattern CONSOLE_RESOURCE_PATTERN = Pattern.compile(".*(json|xsd|raml)$");
-
     public static final String DEFAULT_MIME_TYPE = "application/octet-stream";
     public static final String MIME_TYPE_JAVASCRIPT = "application/x-javascript";
     public static final String MIME_TYPE_PNG = "image/png";
@@ -231,7 +229,7 @@ public class ConsoleHandler implements MessageProcessor
                         String resourcePath = "/" + apiResourcesRelativePath + path.substring(apiResourcesFullPath.length());
                         Path normalized = Paths.get(resourcePath).normalize();
                         // this normalized path should be controlled carefully since can scan all the classpath.
-                        URL classpathResouce = getClasspathResource(normalized);
+                        URL classpathResouce = getClasspathResource(normalized.toString());
                         // if normalized does not start with ("/" + apiResourcesRelativePath), path contains ../
                         if (!normalized.startsWith("/" + apiResourcesRelativePath)) {
                             throw new NotFoundException("../ is not allowed");
