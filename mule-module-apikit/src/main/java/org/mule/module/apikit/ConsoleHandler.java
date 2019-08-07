@@ -20,6 +20,8 @@ import org.mule.transport.http.components.ResourceNotFoundException;
 import org.mule.transport.http.i18n.HttpMessages;
 import org.mule.util.FilenameUtils;
 import org.mule.util.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,23 +31,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static org.mule.util.StringUtils.isNotEmpty;
 
 import static org.mule.module.apikit.UrlUtils.getBasePath;
 import static org.mule.module.apikit.UrlUtils.getQueryString;
 import static org.mule.module.apikit.UrlUtils.getResourceRelativePath;
 import static org.mule.module.apikit.uri.URICoder.decode;
+import static org.mule.util.StringUtils.isNotEmpty;
 
 public class ConsoleHandler implements MessageProcessor
 {
-
-    private Pattern CONSOLE_RESOURCE_PATTERN = Pattern.compile(".*(json|xsd|raml)$");
-
     public static final String DEFAULT_MIME_TYPE = "application/octet-stream";
     public static final String MIME_TYPE_JAVASCRIPT = "application/x-javascript";
     public static final String MIME_TYPE_PNG = "image/png";
@@ -222,15 +216,13 @@ public class ConsoleHandler implements MessageProcessor
                         if (!normalized.startsWith("/" + apiResourcesRelativePath)) {
                             throw new NotFoundException("../ is not allowed");
                         }
-                        if (CONSOLE_RESOURCE_PATTERN.matcher(normalized.toString()).find()) {
-                            InputStream apiResource = getClasspathResource(normalized.toString().trim());
-                            if (apiResource == null && isNotEmpty(apiResourcesRelativePath) && !"/".equals(apiResourcesRelativePath)) {
-                                if (!resourcePath.contains("../")) {
-                                    in = new FileInputStream(new File(configuration.getAppHome(), resourcePath));
-                                }
-                            } else {
-                                in = apiResource;
+                        InputStream apiResource = getClasspathResource(normalized.toString().trim());
+                        if (apiResource == null && isNotEmpty(apiResourcesRelativePath) && !"/".equals(apiResourcesRelativePath)) {
+                            if (!resourcePath.contains("../")) {
+                                in = new FileInputStream(new File(configuration.getAppHome(), resourcePath));
                             }
+                        } else {
+                            in = apiResource;
                         }
                     }
                 }
