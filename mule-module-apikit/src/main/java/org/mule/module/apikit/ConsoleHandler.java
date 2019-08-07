@@ -7,6 +7,7 @@
 
 package org.mule.module.apikit;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.mule.DefaultMuleEvent;
 import org.mule.DefaultMuleMessage;
 import org.mule.api.MuleEvent;
@@ -257,7 +258,7 @@ public class ConsoleHandler implements MessageProcessor
             }
             if (in == null)
             {
-                throw new NotFoundException(path);
+                throw new NotFoundException(StringEscapeUtils.escapeHtml(path));
             }
 
             baos = new ByteArrayOutputStream();
